@@ -1,0 +1,98 @@
+<html></html>
+
+<head>
+<title>Employee Form</title>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+	integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+	crossorigin="anonymous"></script>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+<script>
+	$.urlParam = function(name) {
+		var results = new RegExp('[\?&]' + name + '=([^&#]*)')
+				.exec(window.location.href);
+		if (results !== null)
+			return results[1] || 0;
+		else
+			return 0;
+	}
+	$(window).ready(
+			function() {
+				var id = $.urlParam('id');
+				if (id != 0) {
+					$.get("/api/employee/" + id, function(
+							data, status) {
+						$("#name").val(data.name)
+						$("#phone").val(data.phone)
+						$("#dept").val(data.dept)
+						$("#save").val("Update")
+					})
+				}
+				$("form").on("submit", function(e) {
+					e.preventDefault();
+                    if($("#name").val()=='' || $("#phone").val()=='' || $("#dept").val()==''){
+                        alert("all fields are mandatory")
+                        return false;
+                    }
+					if ($("#save").val() == "Save" && id == 0) {
+						var postData = {
+							"name" : $("#name").val(),
+							"phone" : $("#phone").val(),
+							"dept" : $("#dept").val()
+						}
+					} else if ($("#save").val() == "Update" && id != 0) {
+						var postData = {
+							"id" : parseInt(id),
+							"name" : $("#name").val(),
+							"phone" : $("#phone").val(),
+							"dept" : $("#dept").val()
+						}
+					}
+					$.ajax({
+						url : "/api/employee",
+						type : 'POST',
+						contentType : 'application/json',
+						data : JSON.stringify(postData),
+						success : function(data, status) {
+							if (status == "success")
+								window.location.replace("/")
+							else
+								alert(status + " Something went wrong")
+						}
+					})
+
+				})
+			})
+</script>
+</head>
+
+<body>
+	<div class="container">
+		<nav class="navbar">
+			<div class="navbar-header">
+				<h1>Employee CRUD Application</h1>
+			</div>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a class="btn btn-success" href="/">All
+						Employees</a></li>
+			</ul>
+        </nav>
+		<form id="emp" class="form col-md-6">
+    		<div class="form-group">
+	    		<label for="name">Name :</label> 
+		    	<input class="form-control" type="text" id="name" /> 
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone :</label>
+                <input class="form-control" type="text" id="phone" />
+            </div>
+            <div class="form-group"> 
+                <label for="dept">Dept :</label>
+                <input class="form-control" type="text" id="dept" />
+            </div>
+            <input class="btn btn-success" type="submit" value="Save" id="save" />
+		</form>
+	</div>
+</body>
+
+</html>
